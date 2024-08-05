@@ -50,12 +50,24 @@ loss_fn = nn.CrossEntropyLoss()
 
 # Train the model
 for epoch in range(10): # Train for 10 epochs
+    total_correct = 0
+    total_samples = 0
+
     for images, labels in train_loader:
-        images, labels = images.to(mps_device), labels.to(mps_device)
-        optimizer.zero_grad()   # Reset gradients
+        images, labels = images.to(mps_device), labels.to(mps_device)   # Move the data to the device(CPU or GPU)
+        optimizer.zero_grad()           # Reset gradients
         ouputs = classifier(images)     # Forward pass
+        _, predicted = torch.max(ouputs, 1) # To use and compute accuracy
         loss = loss_fn(ouputs, labels)  # Compute loss
-        loss.backward()     # Backward pass
-        optimizer.step()    # Update weights
+        loss.backward()                 # Backward pass
+        optimizer.step()                # Update weights
+
+        # Update the running total of correct predictions and samples
+        total_correct += (predicted == labels).sum().item()
+        total_samples += labels.size(0)
     
+    # Calculate Loss and Accuracy for this epoch   
     print(f"Epoch:{epoch} loss is {loss.item()}")
+    
+    accuracy = 100 * total_correct / total_samples
+    print(f'Epoch {epoch+1}: Accuracy = {accuracy:.2f}%')
