@@ -9,6 +9,11 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+# Hyperparameters
+training_accuracies = []
+training_losses = []
+num_epochs = 5
+
 
 # Loading Data
 transform = transforms.Compose([transforms.ToTensor()])
@@ -49,7 +54,7 @@ optimizer = Adam(classifier.parameters(), lr=0.001)
 loss_fn = nn.CrossEntropyLoss()
 
 # Train the model
-for epoch in range(10): # Train for 10 epochs
+for epoch in range(num_epochs): # Train for 10 epochs
     total_correct = 0
     total_samples = 0
 
@@ -71,3 +76,37 @@ for epoch in range(10): # Train for 10 epochs
     
     accuracy = 100 * total_correct / total_samples
     print(f'Epoch {epoch+1}: Accuracy = {accuracy:.2f}%')
+
+    training_losses.append(loss.item())
+    training_accuracies.append(accuracy)
+
+
+# Save the trained model
+torch.save(classifier.state_dict(), 'model_state.pt')
+
+# Load the saved model 
+with open('model_state.pt', 'rb') as f:
+    classifier.load_state_dict(load(f))
+
+
+
+# Plot the accuracy over time(epoch) and also loss function over time(epoch)
+import matplotlib.pyplot as plt
+
+# Plot accuracy
+fig, ax = plt.subplots()
+ax.plot(range(num_epochs), training_accuracies, label='Accuracy')
+# ax.plot(range(num_epochs), training_losses, label='Loss')
+ax.set_xlabel('Epoch')
+ax.set_ylabel('Accuracy and Loss')
+ax.set_title('Accuracy per Epoch')
+# plt.legend() # to annotate multiple lines in the same plot
+plt.show()
+
+# # plot Losses
+fig2, ax2 = plt.subplots()
+ax2.plot(range(num_epochs), training_losses)
+ax2.set_xlabel('Epoch')
+ax2.set_ylabel('Loss')
+ax2.set_title('Loss per Epoch')
+plt.show()
