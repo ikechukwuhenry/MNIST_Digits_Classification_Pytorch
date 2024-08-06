@@ -9,18 +9,18 @@ from MnistDigitsClassifcationPytorch import ImageClassifier
 
 # Create an instance of the image classifier model
 mps_device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-classifier = ImageClassifier().to(mps_device)
+my_classifier = ImageClassifier().to(mps_device)
 
 # Load the saved model 
 with open('model_state.pt', 'rb') as f:
-    classifier.load_state_dict(load(f))
+    my_classifier.load_state_dict(load(f))
 
-classifier.eval()
+my_classifier.eval()
 
 # Perform inference on an image
 img = Image.open('image.jpg')
 img_transform = transforms.Compose([transforms.ToTensor()])
 img_tensor = img_transform(img).unsqueeze(0).to(mps_device)
-output = classifier(img_tensor)
+output = my_classifier(img_tensor)
 predicted_label = torch.argmax(output)
 print(f"Predicted label: {predicted_label}")
